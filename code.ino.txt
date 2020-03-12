@@ -1,0 +1,120 @@
+const int sa = 5;  //In1 motor sheild       
+const int sb = 6;  // In2 motor sheild
+const int sc = 9;  // In3 motor sheild
+const int sd = 10; //In4 motor sheild
+
+
+
+//Ultra sonic Sensor connection
+  const int trigPin = 3;
+  const int echoPin = 4;
+//
+long duration;
+int distance;
+
+int vel = 200; // rotaion of wheel
+//int estado = 'g'; // intial voice
+char junk;
+String estado="";
+
+
+void setup() { 
+Serial.begin(9600);
+pinMode(sc, OUTPUT); 
+pinMode(sd, OUTPUT);
+pinMode(sa, OUTPUT);
+pinMode(sb, OUTPUT);
+pinMode(trigPin, OUTPUT); 
+pinMode(echoPin, INPUT); 
+    
+} 
+
+void distance1()
+{
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  duration = pulseIn(echoPin, HIGH);
+  distance= duration*0.034/2;
+  Serial.print("Distance: ");
+  Serial.println(distance);
+}
+
+
+void loop()
+{ 
+
+if(Serial.available()>0){ // blutooth connection
+//estado = Serial.read();
+//Serial.println(estado);
+  if(Serial.available()){
+  while(Serial.available())
+    {
+      char inChar = (char)Serial.read(); //read the input
+      estado += inChar;        //make a string of the characters coming on serial
+      delay(10);
+    }
+    Serial.println(estado);
+  }
+    while (Serial.available() > 0)  
+    { junk = Serial.read() ; }      // clear the serial buffer
+
+
+
+
+}
+distance1();
+
+
+if(distance<30)
+{
+  estado="stop";
+  Serial.println("Object detected!!!");
+  
+}
+
+
+if(estado=="go"){ // go front
+Serial.println("forward ");
+analogWrite(sa, 0);
+analogWrite(sb, vel); 
+analogWrite(sc, 0); 
+analogWrite(sd, vel); 
+}
+if(estado=="stop"){ //stop
+Serial.println("stop");
+   
+analogWrite(sd, 0); 
+analogWrite(sb, 0);
+analogWrite(sa, 0);
+analogWrite(sc, 0);
+
+}
+if(estado=="back"){ // Reverse
+Serial.println("backs");
+
+analogWrite(sa, vel);
+analogWrite(sb, 0); 
+analogWrite(sc, vel); 
+analogWrite(sd, 0);
+
+}
+
+if(estado=="left"){ //left aside
+Serial.println(estado);
+analogWrite(sa, 0);
+analogWrite(sb, vel); 
+analogWrite(sc, vel); ///
+analogWrite(sd, 0);
+}
+if(estado=="right"){ // right aside
+Serial.println(estado);
+analogWrite(sa, vel);///
+analogWrite(sb, 0); 
+analogWrite(sc, 0); 
+analogWrite(sd, vel);
+}
+estado = "";
+}
